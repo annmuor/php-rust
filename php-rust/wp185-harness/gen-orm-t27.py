@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+# gen-orm-t27.py — genera s185-orm-coppia-t27.sh come COPIA DICHIARATA di wp176-harness/s176-orm-coppia.sh (coppia
+# dbal+ORM t27 @ pin s182, criterio s185-criterio-istruttoria-orm.md p.5-6). Ogni sostituzione e' asserita UNICA; manifest
+# s185-orm-coppia-t27-copia.diff. Adattamenti: harness wp185 (orm-out, verdetto s185-orm-coppia-verdetto-t27.out), pin
+# atteso default s182, watchdog = copia con hash wp184-harness, costanti del giudice (ORA_REF2, SENT_LO/HI, REF2_MIN/MAX)
+# lette da env con default = canone E4 (il lanciatore passa E5 SOLO se l'istruttoria ha scritto e5.flag), sotto E5 il lato
+# veloce della sentinella e' SEGNALAZIONE non blocco (rev. S-184 bis azione B), costanti dichiarate nel verdetto. Resto INVARIATO.
+import os, subprocess
+H = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(H, "..", "wp176-harness", "s176-orm-coppia.sh"); DST = os.path.join(H, "s185-orm-coppia-t27.sh")
+s = open(SRC).read()
+def sub(old, new):
+    global s
+    assert s.count(old) == 1, f"NON unico ({s.count(old)}): {old[:70]!r}"
+    s = s.replace(old, new)
+sub("#!/bin/bash\n# EMENDA S-184 bis",
+    "#!/bin/bash\n# s185-orm-coppia-t27.sh — S-185: coppia dbal+ORM t27 @ pin s182 (dopo l'istruttoria a 3 bracci, stessa notte, stesso lock).\n"
+    "# COPIA DICHIARATA di wp176-harness/s176-orm-coppia.sh (manifest s185-orm-coppia-t27-copia.diff, generatore gen-orm-t27.py)\n"
+    "# coi SOLI adattamenti: harness wp185 (orm-out, verdetto s185-orm-coppia-verdetto-t27.out), PIN_ATTESO default s182, watchdog\n"
+    "# = wp184-harness/run-with-watchdog-s184bis.sh (copia con hash), costanti del giudice da env (default = canone E4 S-176; E5 =\n"
+    "# ORA_REF2 4,870 SENT [4,81;4,93] REF2 [34,23;34,31] SOLO se il lanciatore trova istr-out/e5.flag), sotto E5 lato veloce =\n"
+    "# SEGNALAZIONE (non sospende il giudizio), costanti dichiarate nel verdetto. Tutto il resto INVARIATO; testo S-176 sotto.\n"
+    "# EMENDA S-184 bis")
+sub('H="$REPO/wp176-harness"', 'H="$REPO/wp185-harness"')
+sub('WD="/Volumes/Extreme Pro/Claude/wp13-harness/run-with-watchdog.sh"', 'WD="$REPO/wp184-harness/run-with-watchdog-s184bis.sh"')
+sub('VERD="$H/s176-orm-coppia-verdetto.out"', 'VERD="$H/s185-orm-coppia-verdetto-t27.out"')
+sub('PIN_ATTESO="${PIN_ATTESO:-5de14d6856d760a8}"', 'PIN_ATTESO="${PIN_ATTESO:-159eee40be506171}"')
+sub('print("coppia-s175 (user CPU; pavimenti PARZIALI phpunit --version: orm o=%.3f p=%.3f · dbal o=%.3f p=%.3f)" % (fo, fp, dfo, dfp))',
+    'E5 = os.environ.get("E5", "0") == "1"\n'
+    'print("coppia-t27 @ s182 (user CPU; pavimenti PARZIALI phpunit --version: orm o=%.3f p=%.3f · dbal o=%.3f p=%.3f) — costanti giudice: %s" % (fo, fp, dfo, dfp, "E5 (istruttoria DRIFT)" if E5 else "canone E4 (S-176)"))')
+sub('REF2_MIN, REF2_MAX = 34.73, 34.81  # EMENDA E4',
+    'REF2_MIN, REF2_MAX = float(os.environ.get("REF2_MIN", "34.73")), float(os.environ.get("REF2_MAX", "34.81"))  # S-185: da env (E5 se dichiarato) — EMENDA E4')
+sub('ORA_REF2 = 4.94                    # EMENDA E4',
+    'ORA_REF2 = float(os.environ.get("ORA_REF2", "4.94"))  # S-185: da env (E5 se dichiarato) — EMENDA E4')
+sub('SENT_LO, SENT_HI = 4.84, 5.04      # EMENDA E4',
+    'SENT_LO, SENT_HI = float(os.environ.get("SENT_LO", "4.84")), float(os.environ.get("SENT_HI", "5.04"))  # S-185: da env (E5 se dichiarato) — EMENDA E4')
+sub('    sent_fuori = [round(x, 2) for x in on if not (SENT_LO <= x <= SENT_HI)]\n',
+    '    # S-185 (E5, rev. S-184 bis azione B): sotto E5 il lato VELOCE e\' segnalazione, non blocco; sotto E4 resta vincolante\n'
+    '    sent_fuori = [round(x, 2) for x in on if not (SENT_LO <= x <= SENT_HI) and not (E5 and x < SENT_LO)]\n'
+    '    sent_veloci = [round(x, 2) for x in on if E5 and x < SENT_LO]\n'
+    '    if sent_veloci: print(f"sentinella oracle E5: gambe {sent_veloci} sotto {SENT_LO} (lato veloce) — SEGNALATE, giudizio NON sospeso")\n')
+sub('{ echo "== s175 coppia dbal+ORM (pin s175 MISURATO $PINM vs oracle 8.5.7; criterio s175-criterio-orm.md) =="',
+    '{ echo "== s185 coppia t27 dbal+ORM (pin s182 MISURATO $PINM vs oracle 8.5.7; criterio s185-criterio-istruttoria-orm.md p.5-6) =="\n'
+    '  echo "costanti giudice: E5=${E5:-0} ORA_REF2=${ORA_REF2:-4.94} SENT=[${SENT_LO:-4.84};${SENT_HI:-5.04}] REF2=[${REF2_MIN:-34.73};${REF2_MAX:-34.81}] (default = canone E4 S-176)"')
+open(DST, "w").write(s); os.chmod(DST, 0o755)
+with open(os.path.join(H, "s185-orm-coppia-t27-copia.diff"), "w") as mf:
+    subprocess.run(["diff", SRC, DST], stdout=mf)
+print("generato", DST)
