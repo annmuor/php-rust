@@ -1,0 +1,18 @@
+== s185 bracci Z/B/M leva (a) L-MR1+L-MC2 — riferimento A = pin s182 159eee40be506171, sorgente B = commit 4176ea3a4ac8, Z = commit 454a77c3391f, fixture fx-sw2-gc 54 righe + fx-sw1 87 righe + fx-sl1/fx-sl2/fx-sl3 + fx-cr1 59 righe, Extreme 2454G 2026-10-16 03:35:36 ==
+RIFERIMENTO: pin fx-sw2-gc gcp-fused: d=1 s=1 gcp-ctl: d=1 s=1 gcp-loop: 1,1 s=2 gcp-scsc: d=1 l=11 gcp-under: d=0 s=1 gcp-off: d=0 s=1 FX-SW2 DONE  · fx-sw1 pin==oracle BYTE-ID · fx-cr1 pin==oracle BYTE-ID (righe ACE: 5) · fx-rt1/fx-rt2/fx-mc2 pin==oracle BYTE-ID
+Z: binario ce6ae73f6388399e ≠ pin 159eee40be506171 (gemello a contenuto: SL in-run stimabile)
+B: binario 7466bf61a7e72a63 (commit 4176ea3a4ac8)
+M: binario 9643f30851136720 (B + mutante: Ret fuso del metodo senza la nota GC di $this)
+B: fx-sw2-gc == pin BYTE-ID (invarianza)
+B: fxsw1 == oracle BYTE-ID
+B: fxsl1 == oracle BYTE-ID
+B: fxsl2 == oracle BYTE-ID
+B: fxsl3 == oracle BYTE-ID
+B: fxcr1 == oracle BYTE-ID
+B: fxrt1 == oracle BYTE-ID
+B: fxrt2 == oracle BYTE-ID
+B: fxmc2 == oracle BYTE-ID
+MUTANTE: morde — fx-mc2 righe cambiate 4, tutte MC2-dtor (non MC2-dtor 0): etichette MC2-dtor MC2-dtor-cascade  — la fixture presidia la nota GC di $this
+DISASM run_loop: pin s182 istr=72016 bl=6105 blr=13 sp_refs=10782 · Z istr=72016 bl=6105 blr=13 sp_refs=10782 · B istr=72030 bl=6107 blr=13 sp_refs=10784 (gate vs il PIN: Δsp_refs ≤ +97, |Δbl| ≤ 2 — criterio-mc2 p.6)
+GATE disasm (criterio-mc2 p.6): Δsp_refs=2 (≤ +97) Δbl=2 (∈ [−2;+2]) vs pin s182 ⇒ RISPETTATO · Δistr=14 a verbale
+ESITO rc=0 (0 = B a parità, mutante che morde, disasm in tolleranza: bracci pronti; 2 = B diverge; 3 = mutante non morde; 5 = disasm fuori tolleranza) fine 2026-10-16 03:43:38
