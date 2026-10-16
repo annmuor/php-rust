@@ -1,0 +1,47 @@
+PRE: candidato = braccio B 7466bf61a7e72a63 (commit 4176ea3a, A/B mc2 rc=0, cifra composta [+19,00;+19,17]); REF = stash s182 159eee40be506171
+PRE: HEAD PRIMA della build = 483e970f · status --porcelain (non-untracked) = 0 righe (rilievo 3 S-180)
+lock CI: presente (finestra di sessione, non lo tocco)
+guardia disco: Data 16G prima di build
+promozione: build ricetta di HEAD 483e970f = 9a6ae11bf7e900ef ≠ braccio B 7466bf61a7e72a63 (target separata: candidato A CONTENUTO, dichiarato — LC_UUID/firma; il pin nasce da QUESTA build)
+guardia disco: Data 16G prima di batteria
+promozione batteria: rc=0 (da promo-out/batteria.rc) · 1748/0/2 · inventario: baseline s125 + 2 denti (dichiarati: nessun_sorgente_rs_oltre_cap rczval_pattern_resta_nel_funnel)
+promozione batteria: debug_backtrace_array_fields VERDE
+promozione: batteria SENZA churn — build2 no-op dichiarato (binario intatto, hash 9a6ae11bf7e900ef == build 1; emenda S-184 del gate rilievo 1 S-182)
+promozione: PIN phpr s183 = 9a6ae11bf7e900ef (smoke parità 2 modi OK, stash phpr-s183, registrato+committato). I gate del protocollo (batteria/corpus/fixture/micro) restano dovuti.
+guardia disco: Data 15G prima di corpus
+promozione corpus-gate: rc=0 — nomi==congelato (1412), CONTENUTO==golden, off-on zero (ZERO flip come atteso: L-MR1+L-MC2 a semantica identica per costruzione, prova per nome criterio-mc2 p.8)
+promozione fixture chain: rc=0 (10 gate: hc1 move recv fx20 fx21 w9 preg teardown stash backtrace)
+promozione gate fxce: oracle==pin BYTE-ID (12 forme class/interface/trait_exists)
+promozione gate sonda-bt: pin==stash s182 BYTE-ID (contratto autoload/backtrace §3.25 invariato)
+promozione gate fxrefl: pin==stash s182 BYTE-ID (contratto __reflect_* L-RF2 invariato)
+promozione gate fxam: oracle==pin BYTE-ID (20 forme array_map v2, fast E pieno)
+promozione gate fxaf: oracle==pin BYTE-ID (13 forme array_filter, fast E pieno)
+promozione gate fxsm: oracle==pin BYTE-ID (forme string-callable, fast E pieno — presidio L-AM2)
+promozione gate fxsmdiv: pin==stash s182 BYTE-ID (3 divergenze §3.26 PRE-esistenti INVARIATE)
+promozione gate fxau: oracle==pin BYTE-ID (10 forme loader array-callable — presidio L-AU1)
+promozione gate fxaudiv: pin==stash s182 BYTE-ID (divergenza §3.27 PRE-esistente INVARIATA)
+promozione gate fxmck: oracle==pin BYTE-ID (method-call k=3/k=5 — presidio L-MCk (S-166: ==oracle))
+promozione gate fxmc: pin==stash s182 BYTE-ID (method-call fast path L-MC1 (S-165) invariato)
+promozione gate fxmc2: pin==stash s182 BYTE-ID (§3.28 ordine SEND_VAR_EX/dtor temp PRE-esistente INVARIATO)
+promozione gate fxmc2fib: pin==stash s182 BYTE-ID (§3.29 Fiber non final PRE-esistente INVARIATO)
+promozione gate fxsl1: oracle==pin BYTE-ID (presidio DIRETTO L-SL1: overflow/shift/Div/Mod/Pow/Ref/Double/stringa/null/bool/dst==l/typed-ref/IncDec limiti/CmpJmpSC 8 forme)
+promozione gate fxsl1div: pin==stash s182 BYTE-ID (forme con diag §3.11/§3.13 PRE-esistenti INVARIATE)
+promozione gate fxsl2: oracle==pin BYTE-ID (presidio DIRETTO L-SL2 (forme P1 in loop a 2 iterazioni = IC calda): P1 bigramma fuso e P2 BinarySTDst — overflow/shift/Div/Mod/Pow/Concat/Double/stringa/null/bool/Ref/typed int-float/readonly (anche in scope)/private/hook set/__set/ereditata/dinamica)
+promozione gate fxsl2div: pin==stash s182 BYTE-ID (§3.30 default float da literal int PRE-esistente INVARIATO)
+promozione gate fxsl3: oracle==pin BYTE-ID (presidio DIRETTO fetta 3 (loop a 2 = IC calda): P3 peephole $s OP= $o->x e P4 borrow unico recv==slot — overflow/shift/Div/Mod/Pow/Concat/Double/stringa/null/bool/Ref/typed-ref/__get/hook get/enum/dinamica/dst==slot/controlli negativi)
+promozione gate fxsl3div: pin==stash s182 BYTE-ID (§3.32 riga del Deprecated prop dinamica PRE-esistente INVARIATA)
+promozione gate fxsw1: oracle==pin BYTE-ID (presidio DIRETTO Sweep-in-op: ordine statement/distruttori dopo gli op fusi in place, forme fuori dominio (Double/null/concat/overflow/div), P3/P1/P4 con nota a monte, sweep light e finestra main, IN_DESTRUCTOR, pressione GC; back-edge fuso: for Long/Int, miss (Double/str/CmpJmpSS/const-lhs/step2/while), overflow al bordo)
+promozione gate fxcr1: oracle==pin BYTE-ID (presidio DIRETTO L-CR1 (S-181): arità esatta (ip=1), troppo pochi argomenti (ArgumentCountError Zend su funzione/metodo/statico/3-arietà), surplus+func_get_args, default, by-ref, ricorsione, dtor a fine frame, metodi IC/ereditati, closure/dinamica/cuf/cufa, hint, Ref che decade)
+promozione gate fxrt1: oracle==pin BYTE-ID (presidio DIRETTO L-RT1 (S-183): cicli locali array/oggetto + gc_collect_cycles, ricorsione, foreach, dinamiche, metodo)
+promozione gate fxrt2: oracle==pin BYTE-ID (presidio DIRETTO L-RT2 (S-184): ammissione del Ret fuso — hint int/nullable/TypeError, by-ref alias e deref, forma 0 annidata/null/locali, ret_cell thunk statico, INIT_PROPS, __toString, dtor con chiamata)
+promozione gate fxmc2s185: oracle==pin BYTE-ID (presidio DIRETTO L-MR1+L-MC2 (S-185): Ret fuso dei metodi (nota GC del ricevitore: dtor-late, ordine slots poi ricevitore, cascata del ricevitore risorto), MethodCall in pila (by-ref, default, ArgPlace sul cammino storico, dtor di temporanei in istruzione propria))
+promozione E2 calma CPU: PASS al tentativo 1 (campioni: 146 4 2 8 %)
+promozione quiescenza: PASS al tentativo 1
+promozione micro pin s183: rapporto_arith=2.1  [derivata: companion 0.91/0.43] rapporto_prop=2.3  [derivata: companion 0.96/0.42] rapporto_calls=3.5  [derivata: companion 1.56/0.45] rapporto_str=4.3  [derivata: companion 0.65/0.15] rapporto_arr=2.9  [derivata: companion 0.83/0.29] rapporto_re=2.5  [derivata: companion 0.90/0.36] 
+conferma post-pin mcalls-dq (pin s183 vs stash s182, stessa toolchain): D=+19.50 rumore=1.67 segni=5/5 A=145.50 B=126.00 ns/iter (N=60000000 dal driver) (attesa: D ≈ cifra composta dell'A/B mc2 [+19,00;+19,17])
+conferma post-pin calls-dq (guardia, pin s183 vs stash s182): D=+0.17 rumore=1.00 segni=2/5 A=78.17 B=78.00 ns/iter (N=60000000 dal driver) (attesa |D| < 1: Ret fuso delle funzioni già ammesso)
+conferma post-pin prop-dq (guardia, pin s183 vs stash s182): D=+0.00 rumore=0.47 segni=1/5 A=31.60 B=31.60 ns/iter (N=150000000 dal driver) (attesa |D| < 1: sola lettura)
+promozione gate ORM: fail-set per NOME == baseline (16 nomi) · Tests: 3484, Assertions: 11989, Errors: 3, Failures: 13, Skipped: 59, Incomplete: 2. · orm.rc=2 (exit PHPUnit, non gate)
+promozione gate http-kernel: 0E/0F · Tests: 1665, Assertions: 3850, PHPUnit Warnings: 2, Warnings: 5, Deprecations: 128. · hk.rc=1 (exit PHPUnit per warning/deprecation: il gate è sul summary — rilievo 4 S-180, dichiarato)
+promozione server: PIN server s183 = 674f6b9730da41ff @ b7d6573e (smoke OK, stashato, registrato+committato). pin phpr INVARIATO (9a6ae11bf7e900ef)
+PROMOZIONE COMPLETA rc=0 (da promo-out/rcb): pin s183 = 9a6ae11bf7e900ef
