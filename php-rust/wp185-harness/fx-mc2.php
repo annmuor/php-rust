@@ -53,8 +53,8 @@ echo "MC2-gen: "; foreach ($o->gen() as $g) echo $g; echo "\n";
 echo "MC2-closure: ", ($o->cl())(), "\n";
 echo "MC2-null: "; var_dump($o->nul());
 echo "MC2-place: ", $o->place($o->arr, 1), " ", $o->place([5, 6], $o->v - 6), "\n";
-echo "MC2-dtor-local: ", $o->mk('a'), "\n";
-echo "MC2-dtor-temp: ", (new D('t'))->m(4, 5), "\n";
+$v = $o->mk('a'); echo "MC2-dtor-local: $v\n";          // il distruttore di D('a') precede l'echo (fine istruzione)
+$v = (new D('t'))->m(4, 5); echo "MC2-dtor-temp: $v\n";   // ricevitore temporaneo: ultimo riferimento = $this del frame
 echo "MC2-dtor-after: fine\n";
 $d = new D('z'); echo "MC2-dtor-unset: ", $d->m(6, 7), "\n"; unset($d); echo "MC2-dtor-unset-after\n";
 echo "FX-MC2 DONE\n";
