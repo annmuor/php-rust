@@ -17,3 +17,5 @@ A. Aggiungere a fx-mc2 le forme P2 e P3 (P3 in istruzione propria, `$r = D::take
 B. Commento L-MC2 (run.rs:7035-7040): prova per nome del «mai last-ref» o dente handle-id LIFO con due argomenti by-ref.
 C. Correggere fx-mc2.php:12.
 D. Catalogare il rilievo 5 in PHPR_DIVERGENCES_FROM_PHP.md (REGOLE 9).
+
+**Stato (S-185 diurna, 16/10)**: A FATTA (fx-mc2 P2/P3, notte, M morde su 4 righe MC2-dtor*) · B FATTA — prova per NOME in s185-criterio-mc2.md p.8 (la clone del referente precede il drop del wrapper Ref: count ≥ 2, muore solo la cella RefCell; nessun dente necessario; declassamento S-106-D-9 superato anche per il Call di L-CR1 (a)) · C FATTA (notte) · D FATTA (§3.35, notte).

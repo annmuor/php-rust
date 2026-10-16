@@ -1,4 +1,10 @@
 #!/bin/bash
+# EMENDA E5 (S-185, RATIFICATA dall'utente 2026-10-16 mattina; aritmetica in wp185-harness/s185-banda-e5.py/.out; collaudata sul t27):
+# ORA_REF2=4,870 (mediana di 18 gambe oracle pulite S-162..S-184: parita' rc=0, nessuna segnalazione relativa, tetto ASSOLUTO
+# 200 ictx/s; esclusi s176 file vivo = duplicato t26, s181 1240/594 ictx/s, s172/s173 una gamba), banda [4,81;4,93] = min/max
+# puliti, LATO VELOCE = SEGNALAZIONE (giudizio NON sospeso), lato lento = blocco; REF2 ri-normalizzata [34,23;34,31] =
+# [34,27;34,35]x4,870/4,875. Motivo: il canone E4 (4,94, [4,84;5,04]) poggiava su gambe che includevano le contaminate e
+# rincorreva il drift (istruttoria 3 bracci S-185: mediana oracle 4,81 < 4,84). Costanti stampate nel verdetto.
 # EMENDA S-184 bis (2026-10-08, dichiarata): giudice con guardia sui .time incompleti (exit 7 => RC=7, VERDETTO NON EMESSO); vedi blocco python.
 # s176-orm-coppia.sh — coppia dbal+ORM col CANONE EMENDATO (S-176, istruttoria s176-istruttoria-sentinella-orm.md +
 # criterio s176-criterio-orm.md): COPIA DICHIARATA di s175-orm-coppia.sh (manifest s176-orm-coppia-copia.diff) coi SOLI
@@ -226,9 +232,9 @@ if diff[:20]: print("dbal_diff_nomi: " + " | ".join(diff[:20]))
 # --- ATTESA L-MC1d (criterio s173-criterio-orm.md p.3, aritmetica meccanica) ---
 # Giudizio CANONICO su net ORACLE-NORMALIZZATO EREDITATO; scaletta a DUE
 # ESTREMI NEL CANONE (S-160); replica-AL1 RIMOSSA (attesa CHIUSA S-160).
-REF2_MIN, REF2_MAX = 34.73, 34.81  # EMENDA E4 (S-176, sanata rev. rilievo 6): [34,27;34,35]x4,94/4,875 ri-normalizzata alla nuova ORA_REF; RIF AGGIORNATO: finestra VALIDA s166-mattina @ pin s165 (sentinella quieta 4,87/4,88) — dichiarato
-ORA_REF2 = 4.94                    # EMENDA E4 (S-176, sanata rev. rilievo 6): mediana delle 18 gambe oracle pulite S-162..S-175 (istruttoria s176); era 4,885 (finestra s162 fredda)
-SENT_LO, SENT_HI = 4.84, 5.04      # EMENDA E4 (S-176, sanata rev. rilievo 6): ORA_REF +-2 % = spread storico delle gambe pulite (4,88..5,03), fuori = macchina anomala; era [4,83;4,94] EMENDA S-166: banda sentinella oracle PRE-registrata (s165-istruttoria-ictx-orm.md B1, VINCOLANTE; ORA_REF REGGE per R=5 s165 mediana 4.860)
+REF2_MIN, REF2_MAX = 34.23, 34.31  # EMENDA E5 (S-185, ratificata 16/10): [34,27;34,35]x4,870/4,875; era 34,73/34,81 — EMENDA E4 (S-176, sanata rev. rilievo 6): [34,27;34,35]x4,94/4,875 ri-normalizzata alla nuova ORA_REF; RIF AGGIORNATO: finestra VALIDA s166-mattina @ pin s165 (sentinella quieta 4,87/4,88) — dichiarato
+ORA_REF2 = 4.870                   # EMENDA E5 (S-185, ratificata 16/10): mediana 18 gambe pulite S-162..S-184, tetto ictx 200/s; era 4,94 — EMENDA E4 (S-176, sanata rev. rilievo 6): mediana delle 18 gambe oracle pulite S-162..S-175 (istruttoria s176); era 4,885 (finestra s162 fredda)
+SENT_LO, SENT_HI = 4.81, 4.93      # EMENDA E5 (S-185, ratificata 16/10): min/max delle gambe pulite, lato veloce = SEGNALAZIONE; era [4,84;5,04] — EMENDA E4 (S-176, sanata rev. rilievo 6): ORA_REF +-2 % = spread storico delle gambe pulite (4,88..5,03), fuori = macchina anomala; era [4,83;4,94] EMENDA S-166: banda sentinella oracle PRE-registrata (s165-istruttoria-ictx-orm.md B1, VINCOLANTE; ORA_REF REGGE per R=5 s165 mediana 4.860)
 RES = 0.293                        # risoluzione KS-146-1
 RREF_LO, RREF_HI = 7.023, 7.053    # rapporto net registrato s166-mattina @ pin s165 (companion) — NON cambiato; NOTA t18 [7,090;7,092] da rivedere; se in S-173 resta >7,05 scatta la regola 4
 ATT_LO, ATT_HI = 0.0, 0.0          # attesa Sweep-in-op (B+C, S-175) DICHIARATA [testo S-173 segue]: direzione <=0 (mai peggiorare); magnitudine NON pre-registrabile (quota di chiamate a metodo AMMESSE — simple_call arita' esatta IC-hit — nel workload doctrine NON censita); GIU' = coerente con la leva, da dichiarare SENZA ripartizione senza census proprio (Composer/Doctrine a REGIME = classmap hit, i miss autoload [obj,metodo] RARI; quota miss NON censita => sotto-risoluzione; attesa-AF1 resta APERTA, non risolta da questa coppia)
@@ -248,7 +254,11 @@ if len(nn) == 2 and len(on) == 2:
         if dn_max < -RES: return "REGR"
         if dn_min > -RES and dn_max < RES: return "COMP"
         return "NR"
-    sent_fuori = [round(x, 2) for x in on if not (SENT_LO <= x <= SENT_HI)]
+    print(f"costanti giudice: E5 (ratificata S-185 16/10) ORA_REF2={ORA_REF2} SENT=[{SENT_LO};{SENT_HI}] REF2=[{REF2_MIN};{REF2_MAX}]")
+    # E5: il lato VELOCE della banda e' segnalazione, non blocco (il lato lento resta vincolante: emenda S-166)
+    sent_fuori = [round(x, 2) for x in on if x > SENT_HI]
+    sent_veloci = [round(x, 2) for x in on if x < SENT_LO]
+    if sent_veloci: print(f"sentinella oracle E5: gambe {sent_veloci} sotto {SENT_LO} (lato veloce) — SEGNALATE, giudizio NON sospeso")
     n2, dn2_min, dn2_max = _norm(ORA_REF2, REF2_MIN, REF2_MAX)
     print(f"attesa-MC1 ORACLE-NORMALIZZATO (CANONICO coppia): net_norm=[{n2[0]:.2f}; {n2[1]:.2f}] (ORA_REF={ORA_REF2}, oracle_net_gambe={[round(x,2) for x in on]}) Delta_norm=[{dn2_min:+.2f}; {dn2_max:+.2f}] s")
     print(f"rapporto net (companion): [{rr[0]:.3f}; {rr[1]:.3f}] vs registrato S-162 [{RREF_LO}; {RREF_HI}]")

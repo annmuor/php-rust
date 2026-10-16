@@ -3728,16 +3728,13 @@ impl<'m> super::Vm<'m> {
                         // chiamante ai primi slot del callee, in ordine inverso
                         // di pop: nessun contenitore, nessuna alloc (canale
                         // 1 alloc × 32 B/chiamata inchiodato da hd-free-hist).
-                        // Semantica = braccio fast di bind_params. DECLASSATO
-                        // (S-106-D-9, KS-MA-107-1): «decay_arg è pure-read»
-                        // era un CLAIM non provato — il drop del wrapper Ref
-                        // dentro decay_arg può liberare l'ultima ref (memoria
-                        // resa, handle-id riciclabili): l'ordine (0..n).rev()
-                        // è equivalente al push-order di bind_params SOLO
-                        // finché nessun operando è last-ref, proprietà mai
-                        // provata per NOME. Niente user code nel decay (no
-                        // __destruct inline nel drop glue) è l'unica parte
-                        // osservata; il dente handle-id/cascata è a backlog.
+                        // Semantica = braccio fast di bind_params. Ordine
+                        // (0..n).rev() vs push-order di bind_params: equivalente
+                        // perché nessun operando è last-ref al decay — PROVATO
+                        // per nome in S-185 (az.B rev., s185-criterio-mc2.md
+                        // p.8; supera il declassamento S-106-D-9/KS-MA-107-1):
+                        // `decay_arg` clona il referente PRIMA del drop del
+                        // wrapper Ref (count ≥ 2), muore solo la cella RefCell.
                         #[cfg(feature = "mem-census")]
                         php_types::memcensus::arity_note(n);
                         // L-CR1 (S-181, wp181-harness/s181-criterio-cr1.md):
@@ -6998,7 +6995,7 @@ impl<'m> super::Vm<'m> {
     /// IC = ThisMethodCall: un Fiber non è mai NEL cache (`method_call`
     /// devia prima del fill site di `dispatch_instance_call`, suo unico
     /// scrittore); Generator/Closure non sono `Zval::Object`. L'ordine di
-    /// pop (0..n).rev() eredita il caveat last-ref di H-D (S-106-D-9).
+    /// pop (0..n).rev(): caveat last-ref di H-D CHIUSO (prova S-185 az.B).
     /// `#[inline(never)]`: il corpo resta FUORI da run_loop (cura del
     /// prezzo di layout, arbitrato s165-arbitrato-guardie.md). `Ok(true)` =
     /// chiamata dispatchata (frame entrato); `Ok(false)` = non ammessa, il
@@ -7034,10 +7031,13 @@ impl<'m> super::Vm<'m> {
         // — il frame nasce DENTRO `frames` (push dei buffer del pool), gli
         // argomenti e il ricevitore passano per split_at_mut, nessun Frame per
         // valore attraverso `enter_callee` (il cui ramo simple_call è solo
-        // trace + push, replicato qui al byte); `decay_arg` non esegue codice
-        // utente, quindi l'ordine pop/decay/recv non è osservabile. Un
-        // argomento `ArgPlace` resta sul cammino storico (sotto): la sua
-        // lettura può avvisare o fallire, e lo fa col SOLO chiamante in pila.
+        // trace + push, replicato qui al byte). Ordine pop/decay/recv NON
+        // osservabile, PROVATO per nome (S-185 az.B, s185-criterio-mc2.md p.8):
+        // `decay_arg` clona il referente PRIMA di lasciar morire il wrapper
+        // Ref, quindi ogni payload Rc (Object/Array/Closure/Generator/Resource)
+        // ha count ≥ 2 al drop — muore solo la cella RefCell, senza id né
+        // codice utente. Un `ArgPlace` resta sul cammino storico (sotto): la
+        // sua lettura può avvisare o fallire, e lo fa col SOLO chiamante in pila.
         let has_place = {
             let st = &self.frames[top].stack;
             st[st.len() - n..].iter().any(|a| matches!(a, Zval::ArgPlace(_)))
