@@ -101,6 +101,8 @@ emendamenti passano dal sign-off dell'utente e dal handoff.
   post-receive a ogni push ed esce a coda vuota; prende il job PRIMA di aspettare, quindi coda
   vuota ≠ CI quieta: guardare `pgrep -x cargo`. Mutex con le misure (cap 4 h): lock
   `/private/tmp/phpr-measure.lock` O un processo con `harness/s1NN-`/`run-with-watchdog` nell'argv.
+  `pin-phpr.sh`/`pin-server.sh` committano e pushano PIN_REGISTRY da soli: una promozione lascia
+  2 commit e 2 job CI in coda oltre a quelli della sessione.
 - Dente LOC: `cargo test --profile dev-release -p php-runtime --test loc_dente` (0,05 s); un
   commento si cambia a saldo di righe.
 - Script bash generati: mai `$this`/`$nome` PHP in doppi apici sotto `set -u` (muore a run-time,
