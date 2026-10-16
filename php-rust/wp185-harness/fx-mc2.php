@@ -9,8 +9,17 @@
 class D {
     public function __construct(public string $n) {}
     function m($a, $b) { return $a + $b; }                       // forma 0 con $this: il Ret fuso del metodo (L-MR1)
-    function __destruct() { echo "MC2-dtor: {$this->n} ", $this->m(1, 1), "\n"; } // IN_DESTRUCTOR + metodo su ricevitore distrutto (cascata)
+    function __destruct() { echo "MC2-dtor: {$this->n} ", $this->m(1, 1), "\n"; } // IN_DESTRUCTOR; $this->m() qui NON esercita la cascata (count ≥2, oggetto in created — rev. S-185 #4)
+    function k() { $x = new D('local'); return 1; }           // MC2-order (rev. #3): locale + ricevitore temporaneo nello stesso Ret: note slots PRIMA di $this
 }
+class R {                                                        // cascata (rev. #4): ricevitore DISTRUTTO e risorto in una static; ultimo riferimento = $this del frame fuso
+    public $c; static $keep;
+    function __construct() { $this->c = new RC; }
+    function __destruct() { echo "MC2-dtor-cascade: R\n"; self::$keep = $this; }
+    function m($a) { return $a + 1; }
+    static function take() { $o = self::$keep; self::$keep = null; return $o; }
+}
+class RC { function __destruct() { echo "MC2-dtor-cascade: RC\n"; } }
 class M {
     public $v = 7; public array $arr = [1, 2]; public static $cnt = 0;
     function plain($a, $b) { return $a + $b; }                    // MC2-plain: forma 0 (fuso)
@@ -57,4 +66,12 @@ $v = $o->mk('a'); echo "MC2-dtor-local: $v\n";          // il distruttore di D('
 $v = (new D('t'))->m(4, 5); echo "MC2-dtor-temp: $v\n";   // ricevitore temporaneo: ultimo riferimento = $this del frame
 echo "MC2-dtor-after: fine\n";
 $d = new D('z'); echo "MC2-dtor-unset: ", $d->m(6, 7), "\n"; unset($d); echo "MC2-dtor-unset-after\n";
+// il MUTANTE «senza nota GC di $this» morde SOLO su un ricevitore NON giovane (creato in un'istruzione precedente, lo Sweep
+// non lo riesamina senza nota) o sulla cascata del ricevitore distrutto; il temporaneo appena creato (sopra) lo Sweep lo vede comunque.
+$arr = [new D('late')]; echo "MC2-dtor-late-created\n";
+$v = (array_pop($arr))->m(1, 2); echo "MC2-dtor-late: $v\n";    // atteso: «MC2-dtor: late 2» PRIMA di questa riga
+(new D('recv'))->k(); echo "MC2-order-after\n";                 // atteso: dtor local, poi dtor recv, poi questa riga
+$rr = new R; unset($rr); echo "MC2-dtor-cascade-unset\n";   // ($r è già un alias by-ref di w(): nome diverso)
+$v = R::take()->m(1); echo "MC2-dtor-cascade: $v\n";            // atteso: «MC2-dtor-cascade: RC» PRIMA di questa riga
+echo "MC2-dtor-cascade-after\n";
 echo "FX-MC2 DONE\n";
