@@ -1,0 +1,32 @@
+2,3c2,6
+< # s184-lancio-promo.sh — lanciatore DETACHED della catena di promozione COMPOSTA s184 → pin s182 (s184-promozione.sh).
+< # COPIA DICHIARATA di ../wp181-harness/s181-lancio-promo.sh (manifest s184-lancio-promo-copia.diff): soli path/tag.
+---
+> # s185-lancio-promo.sh — lanciatore DETACHED della catena di promozione COMPOSTA s185 → pin s183 (s185-promozione.sh).
+> # COPIA DICHIARATA di ../wp184-harness/s184-lancio-promo.sh (manifest s185-lancio-promo-copia.diff): path/tag PIÙ
+> # (i) attesa quiete CI (nessun cargo/rustc/phpt-runner, coda CI vuota; doppia verifica a 60 s, come s185-lancio-leva.sh) e
+> # (ii) lock TOKEN s185-promo scritto dal lanciatore PRIMA della catena e rimosso a fine corsa (la CI si mette in mutex sul
+> # lock e sul pattern harness/s1NN-): in S-184 il lock era della sessione, qui la catena corre di giorno con la CI attiva.
+11c14
+< H="$SRC/wp184-harness"; O="$H/promo-out"; mkdir -p "$O"
+---
+> H="$SRC/wp185-harness"; O="$H/promo-out"; mkdir -p "$O"
+13c16
+< export PROMO_SP="/private/tmp/promo-s184-sp"
+---
+> export PROMO_SP="/private/tmp/promo-s185-sp"
+21a25,32
+> CIQ="/Volumes/Extreme Pro/Claude/phpr-ci/queue"
+> ci_busy(){ pgrep -qx cargo || pgrep -qx rustc || pgrep -qf phpt-runner || [ -n "$(ls "$CIQ" 2>/dev/null)" ]; }
+> l "attesa quiete CI (cargo/rustc/phpt-runner assenti, coda vuota)"
+> while ci_busy; do sleep 60; done; sleep 60
+> while ci_busy; do sleep 60; done
+> MLOCK=/private/tmp/phpr-measure.lock
+> echo "s185 promozione pin s183 $(date '+%F %T') pid=$$" > "$MLOCK"
+> l "CI quieta — lock scritto: $MLOCK (TOKEN s185-promo)"
+23c34
+< "$H/s184-promozione.sh" >> "$LOG" 2>&1
+---
+> "$H/s185-promozione.sh" >> "$LOG" 2>&1
+24a36
+> rm -f "$MLOCK"; l "lock rimosso"
