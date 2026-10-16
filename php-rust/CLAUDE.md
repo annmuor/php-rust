@@ -14,6 +14,8 @@ grep/cat/Read sui `.rs` via Bash sono **BLOCCATI** dall'hook `serena-vexp-guard.
 (e `git add` di `.rs`: usare `git add -u` + `git commit -F`). Non è un fallback:
 usare Serena. Vale soprattutto per i file grossi
 (`crates/php-runtime/src/vm/mod.rs` ~26k righe, `run.rs` ~7,4k con cap LOC dichiarato).
+Serena ha radice in `php-rust-experiment/`: i `relative_path` partono da `php-rust/crates/...`
+(`crates/...` da solo dà FileNotFoundError).
 
 **REGOLA OBBLIGATORIA — Serena + file `._*`:** quando Serena dà errore
 (`UnicodeDecodeError 0xb0`, panic su `._*.rs`) per via dei file `._*` AppleDouble
@@ -94,7 +96,15 @@ emendamenti passano dal sign-off dell'utente e dal handoff.
   Disciplina **zero pass→fail**.
 - Potatura target a fine sessione: `scripts/target-prune.sh <pin_phpr16> <pin_server16>`
   (tiene i 3 binari pinnati). CI locale per-commit
-  (allarme precoce, NON gate di record): `ci/README.md`, feed `phpr-ci/CI_FEED.log`.
+  (allarme precoce, NON gate di record): `ci/README.md`, feed
+  `/Volumes/Extreme Pro/Claude/phpr-ci/CI_FEED.log` (FUORI dal repo). Il runner parte dal
+  post-receive a ogni push ed esce a coda vuota; prende il job PRIMA di aspettare, quindi coda
+  vuota ≠ CI quieta: guardare `pgrep -x cargo`. Mutex con le misure (cap 4 h): lock
+  `/private/tmp/phpr-measure.lock` O un processo con `harness/s1NN-`/`run-with-watchdog` nell'argv.
+- Dente LOC: `cargo test --profile dev-release -p php-runtime --test loc_dente` (0,05 s); un
+  commento si cambia a saldo di righe.
+- Script bash generati: mai `$this`/`$nome` PHP in doppi apici sotto `set -u` (muore a run-time,
+  `bash -n` non lo vede): `\$this`, con assert nel generatore.
 - **Processi e finestre**: le sonde/monitor vivono in un FILE (`bash -c` inline coi nomi
   degli script nell'argv fa scattare il `pgrep -f` di coordinatori e runner CI); mai
   lanciare un daemon mentre il tree è in checkout detached; mai build, CI e misura
