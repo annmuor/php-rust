@@ -4670,6 +4670,9 @@ impl<'m> Vm<'m> {
     /// holding — exactly what [`Self::gc_note_frame`] sees on the popped
     /// frame — and it is released by the `truncate` that follows, after the
     /// buffer clears, in the order of `recycle_frame`'s `drop(frame)`.
+    /// Forma 2 (S-185, gate disasm rc=5: inlinato portava 7 `bl` nel loop —
+    /// drop glue, bounds check, `gc_note_receiver`): fuori linea, UNA chiamata.
+    #[inline(never)]
     fn gc_note_this(&mut self, top: usize) {
         let this = self.frames[top].this.take();
         if let Some(this) = &this {
