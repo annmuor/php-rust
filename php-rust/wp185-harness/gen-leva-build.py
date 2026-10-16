@@ -20,7 +20,9 @@ sub("#!/bin/bash\n# s184-leva-build.sh — bracci Z (gemello del pin s181) e B (
     "# generatore gen-leva-build.py) coi SOLI adattamenti: token s185, tag s185-leva, pin atteso s182 159eee40be506171, fixture fx-mc2 (NUOVA)\n"
     "# in riferimento + parita' + bersaglio del mutante (fx-rt2 resta a parita'), MUTANTE = «Ret fuso del metodo SENZA la nota GC di $this»\n"
     "# (riga gc_note_this tolta dall'archivio con assert di unicita'; esito esatto: M diverge dall'oracle su fx-mc2 su >=1 riga e TUTTE le\n"
-    "# righe cambiate sono MC2-dtor*), DISASM come GATE vs il PIN s182: Δsp_refs <= +97 e |Δbl| <= 2, altrimenti rc=5. Testo S-184 sotto:\n"
+    "# righe cambiate sono MC2-dtor*), DISASM come GATE vs il PIN s182: Δsp_refs <= +97 e |Δbl| <= 2, altrimenti rc=5.\n"
+    "# EMENDA S-185 (incidente #1 di apparato, 03:10): `$this` in una stringa bash sotto set -u = «unbound variable» DOPO le tre build\n"
+    "# (Z/B/M costruiti, M col mutante applicato): escapato; rerun con SKIP_BUILD=1 (riuso dichiarato dei binari, emenda 5 S-184). Testo S-184 sotto:\n"
     "# s184-leva-build.sh — bracci Z (gemello del pin s181) e B (tree = L-RT1 + L-RT2) + MUTANTE")
 sub('H="$REPO/php-rust/wp184-harness"; H1="$REPO/php-rust/wp181-harness"; H3="$REPO/php-rust/wp182-harness"; OUT="$H/ab-out/s184-leva"; mkdir -p "$OUT"\n'
     'VERD="$H/s184-leva-build-verdetto.out"; DONE="$H/ab-out/s184-leva.done"; rm -f "$DONE"',
@@ -63,7 +65,7 @@ sub("# M = B + mutante: ammissione del Ret FUSO senza i bit di FORMA (shape/flag
     "assert s.count(old) == 1, 'sito nota GC di $this nel Ret fuso non unico'\n"
     "s = s.replace(old, '                        // MUTANTE s185: Ret fuso del metodo SENZA la nota GC di $this\\n')\n")
 sub("grep -q 'MUTANTE s184'", "grep -q 'MUTANTE s185'")
-sub('note "M: binario $MH (B + mutante: ammissione del Ret fuso senza shape/flags/ret_cell)"', 'note "M: binario $MH (B + mutante: Ret fuso del metodo senza la nota GC di $this)"')
+sub('note "M: binario $MH (B + mutante: ammissione del Ret fuso senza shape/flags/ret_cell)"', 'note "M: binario $MH (B + mutante: Ret fuso del metodo senza la nota GC di \\$this)"')
 sub('note "B: $n DIVERGE dall\'oracle ($(wc -l < "$OUT/$n.diff" | tr -d \' \') righe, ab-out/s184-leva/$n.diff) -> rc=2"',
     'note "B: $n DIVERGE dall\'oracle ($(wc -l < "$OUT/$n.diff" | tr -d \' \') righe, ab-out/s185-leva/$n.diff) -> rc=2"')
 sub('bilat fxrt2 "$FXRT2" "FX-RT2 DONE" -d log_errors=0 -d display_errors=1\n',

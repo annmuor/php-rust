@@ -4,7 +4,9 @@
 # generatore gen-leva-build.py) coi SOLI adattamenti: token s185, tag s185-leva, pin atteso s182 159eee40be506171, fixture fx-mc2 (NUOVA)
 # in riferimento + parita' + bersaglio del mutante (fx-rt2 resta a parita'), MUTANTE = «Ret fuso del metodo SENZA la nota GC di $this»
 # (riga gc_note_this tolta dall'archivio con assert di unicita'; esito esatto: M diverge dall'oracle su fx-mc2 su >=1 riga e TUTTE le
-# righe cambiate sono MC2-dtor*), DISASM come GATE vs il PIN s182: Δsp_refs <= +97 e |Δbl| <= 2, altrimenti rc=5. Testo S-184 sotto:
+# righe cambiate sono MC2-dtor*), DISASM come GATE vs il PIN s182: Δsp_refs <= +97 e |Δbl| <= 2, altrimenti rc=5.
+# EMENDA S-185 (incidente #1 di apparato, 03:10): `$this` in una stringa bash sotto set -u = «unbound variable» DOPO le tre build
+# (Z/B/M costruiti, M col mutante applicato): escapato; rerun con SKIP_BUILD=1 (riuso dichiarato dei binari, emenda 5 S-184). Testo S-184 sotto:
 # s184-leva-build.sh — bracci Z (gemello del pin s181) e B (tree = L-RT1 + L-RT2) + MUTANTE (criterio s184-criterio-rt2.md p.3/p.6):
 # COPIA DICHIARATA di ../wp182-harness/s183-leva-build.sh (manifest s184-leva-build-copia.diff) coi SOLI adattamenti: token s184,
 # tag s184-leva, fixture fx-rt2 (NUOVA) in riferimento + parità + bersaglio del mutante, MUTANTE = «ammissione del Ret fuso SENZA i bit
@@ -130,7 +132,7 @@ PY
 grep -q 'MUTANTE s185' "$SRC/php-rust/crates/php-runtime/src/vm/run.rs" || { note "rc=7 mutante NON scritto (verifica grep dopo la patch, lezione S-183 #3)"; fin 7; }
 MH=$(build M) || { note "rc=4 M: build FALLITA (ab-out/s185-leva/build-M.log)"; fin 4; }
 [ "$MH" != "$BH" ] || { note "rc=7 M: binario == B (mutante NON entrato)"; fin 7; }
-note "M: binario $MH (B + mutante: Ret fuso del metodo senza la nota GC di $this)"
+note "M: binario $MH (B + mutante: Ret fuso del metodo senza la nota GC di \$this)"
 fi
 
 RC=0
