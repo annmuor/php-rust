@@ -1,0 +1,48 @@
+1a2,4
+> # s185-lancio-mc2.sh — LEVA (a) L-MR1+L-MC2 (criterio s185-criterio-mc2.md p.6): COPIA DICHIARATA di ../wp184-harness/s184-lancio-rt2.sh
+> # (manifest s185-lancio-mc2-copia.diff, generatore gen-lancio-mc2.py) coi SOLI adattamenti: harness wp185, tag mc2, token s185, bracci
+> # ab-out/s185-leva, pin s182 159eee40, PREV prop-dq 31,60, s185-ab-mc2.sh. Gate INVARIATI. Testo S-184 sotto:
+10,14c13,17
+< H="$SRC/wp184-harness"; O="$H/ab-out"; mkdir -p "$O"
+< LOG="$O/lancio-rt2.log"; LRC="$O/lancio-rt2.rc"; LDONE="$O/lancio-rt2.done"; WDL="$O/watchdog-rt2.log"; ALARM="$O/watchdog-rt2.alarm"
+< DECL="$O/finestra-rt2.txt"
+< PIN="$HOME/Claude/php-rust-output/release/phpr"; PIN8=19a2faa8
+< AB="$O/s184-leva"
+---
+> H="$SRC/wp185-harness"; O="$H/ab-out"; mkdir -p "$O"
+> LOG="$O/lancio-mc2.log"; LRC="$O/lancio-mc2.rc"; LDONE="$O/lancio-mc2.done"; WDL="$O/watchdog-mc2.log"; ALARM="$O/watchdog-mc2.alarm"
+> DECL="$O/finestra-mc2.txt"
+> PIN="$HOME/Claude/php-rust-output/release/phpr"; PIN8=159eee40
+> AB="$O/s185-leva"
+26c29
+< BD="$O/s184-leva.done"
+---
+> BD="$O/s185-leva.done"
+34c37
+< grep -qw s184 /private/tmp/phpr-measure.lock 2>/dev/null || fine 9 "lock senza token s184"
+---
+> grep -qw s185 /private/tmp/phpr-measure.lock 2>/dev/null || fine 9 "lock senza token s185"
+57,59c60,62
+<   i=$((i+1)); /bin/bash "$SRC/wp129-harness/s129-quiescenza.sh" "$O/quiesce-rt2.rc" > "$O/quiesce-rt2-$i.log" 2>&1
+<   if [ "$(cat "$O/quiesce-rt2.rc" 2>/dev/null)" = 0 ]; then Q=$i; break; fi
+<   l "quiescenza tentativo $i FAIL: $(tail -1 "$O/quiesce-rt2-$i.log")"; sleep 60
+---
+>   i=$((i+1)); /bin/bash "$SRC/wp129-harness/s129-quiescenza.sh" "$O/quiesce-mc2.rc" > "$O/quiesce-mc2-$i.log" 2>&1
+>   if [ "$(cat "$O/quiesce-mc2.rc" 2>/dev/null)" = 0 ]; then Q=$i; break; fi
+>   l "quiescenza tentativo $i FAIL: $(tail -1 "$O/quiesce-mc2-$i.log")"; sleep 60
+61c64
+< { echo "== finestra A/B COMPOSTA L-RT1+L-RT2: quiescenza PASS al tentativo $Q, Data ${D0}G, bracci A=$PIN8 Z=$Z8 B=$B8 =="; sentinelle INIZIO; } > "$DECL"
+---
+> { echo "== finestra A/B leva (a) L-MR1+L-MC2: quiescenza PASS al tentativo $Q, Data ${D0}G, bracci A=$PIN8 Z=$Z8 B=$B8 =="; sentinelle INIZIO; } > "$DECL"
+70,71c73,74
+< l "finestra aperta (quiescenza t$Q, Data ${D0}G, B=$B8) — s184-ab-rt2.sh rt2 R=5"
+< /bin/bash "$H/s184-ab-rt2.sh" "$O/arm-A" "$PIN8" "$O/arm-Z" "$Z8" "$O/arm-B" "$B8" rt2 5 31.27
+---
+> l "finestra aperta (quiescenza t$Q, Data ${D0}G, B=$B8) — s185-ab-mc2.sh mc2 R=5"
+> /bin/bash "$H/s185-ab-mc2.sh" "$O/arm-A" "$PIN8" "$O/arm-Z" "$Z8" "$O/arm-B" "$B8" mc2 5 31.60
+75,76c78,79
+< cat "$DECL" >> "$H/s184-rt2-verdetto.out" 2>/dev/null
+< l "s184-ab-rt2.sh rc=$R1"
+---
+> cat "$DECL" >> "$H/s185-mc2-verdetto.out" 2>/dev/null
+> l "s185-ab-mc2.sh rc=$R1"
