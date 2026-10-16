@@ -1091,6 +1091,20 @@ Cura: contatore di profondità (o marca di ricorsione sulle proprietà) che lanc
 (S-184: 108 min CPU, SIGTERM ignorato, serve `kill -9`) ⇒ la sentinella CPU di fine finestra (az.rev. S-184 #4) deve
 elencarlo.
 
+### 3.35 🟡 Distruttore di un temporaneo DOPO la fine dell'istruzione invece che al rilascio dell'operando (S-185, fixture wp185-harness/fx-mc2.php + sonde del revisore)
+
+Tre forme della stessa divergenza di MOMENTO (classe di §3.33: in phpr la raccolta avviene allo Sweep di fine
+statement, in Zend al rilascio dell'ultimo riferimento): (1) `echo "x: ", $o->mk('a'), "\n"` con `mk` che crea un
+oggetto locale: Zend stampa il `__destruct` PRIMA dell'argomento successivo dell'`echo`, phpr dopo l'intera `echo`;
+(2) `echo D::take()->m(1), "\n"` con ricevitore temporaneo risorto in una static (`self::$keep = $this` in
+`__destruct`): la cascata delle sue proprietà (`C dtor`) in Zend precede la stampa del valore, in phpr la segue, e
+l'handle-id del `new` successivo differisce (Zend riusa 1, phpr 2); (3) argomenti temporanei da funzione by-ref
+`$o->m(d(1), d(2))`: Zend distrugge X1 poi X2, phpr X2 poi X1 ⇒ `spl_object_id` dei due `new` seguenti invertiti
+(Zend «3 2», phpr «2 3»). Tutte e tre PREESISTENTI al pin s182 (pin == dev della leva (a), S-185 rev. rilievo 5);
+in istruzione propria (`$v = …; echo …`) le forme (1) e (2) tornano byte-identiche. Cura: stessa di §3.33 (rilascio
+al punto di morte dell'operando) + ordine di rilascio degli argomenti in avanti; da cercare per NOME nel fail-set
+congelato prima di ogni cura.
+
 ## 4. Punti di forza da NON toccare (invarianti verificati byte-identici)
 
 Per evitare regressioni, questi comportamenti sono **già** byte-identici con
