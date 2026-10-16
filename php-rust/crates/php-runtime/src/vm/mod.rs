@@ -4634,29 +4634,48 @@ impl<'m> Vm<'m> {
             self.gc_note(exc);
         }
         if let Some(this) = &frame.this {
-            // A finished `__destruct`'s receiver has already been removed from
-            // `created`, so the sweep cannot cascade it: if this frame holds its
-            // last reference, do that cascade here before it is freed (otherwise
-            // objects it owned would never be re-examined). Do NOT gc_note it —
-            // re-buffering a destructed object only delays its handle-id
-            // release past objects its destructor displaced, flipping Zend's
-            // LIFO reuse order (gh10168: the second `new Test` must reuse the
-            // NEWEST freed id).
-            if let Zval::Object(o) = this {
-                let id = o.borrow().id;
-                if self.destructed.contains(&id) && !self.created.contains_key(&id) {
-                    // OBS-7 (INV-RECV-1): destructed non-created cascade,
-                    // exact count.
-                    if Rc::strong_count(o) == 1 {
-                        self.gc_cascade(o);
-                    }
-                } else {
-                    self.gc_note(this);
+            self.gc_note_receiver(this);
+        }
+    }
+
+    fn gc_note_receiver(&mut self, this: &Zval) {
+        // A finished `__destruct`'s receiver has already been removed from
+        // `created`, so the sweep cannot cascade it: if this frame holds its
+        // last reference, do that cascade here before it is freed (otherwise
+        // objects it owned would never be re-examined). Do NOT gc_note it —
+        // re-buffering a destructed object only delays its handle-id
+        // release past objects its destructor displaced, flipping Zend's
+        // LIFO reuse order (gh10168: the second `new Test` must reuse the
+        // NEWEST freed id).
+        if let Zval::Object(o) = this {
+            let id = o.borrow().id;
+            if self.destructed.contains(&id) && !self.created.contains_key(&id) {
+                // OBS-7 (INV-RECV-1): destructed non-created cascade,
+                // exact count.
+                if Rc::strong_count(o) == 1 {
+                    self.gc_cascade(o);
                 }
             } else {
                 self.gc_note(this);
             }
+        } else {
+            self.gc_note(this);
         }
+    }
+
+    /// L-MR1 (S-185, wp185-harness/s185-criterio-mc2.md): the `$this` note of
+    /// the fused method `Ret`, with the frame still in `frames` (slots and
+    /// stack already taken and noted). The receiver is moved out and back so
+    /// the `Rc::strong_count` seen by the cascade test is the frame's own
+    /// holding — exactly what [`Self::gc_note_frame`] sees on the popped
+    /// frame — and it is released by the `truncate` that follows, after the
+    /// buffer clears, in the order of `recycle_frame`'s `drop(frame)`.
+    fn gc_note_this(&mut self, top: usize) {
+        let this = self.frames[top].this.take();
+        if let Some(this) = &this {
+            self.gc_note_receiver(this);
+        }
+        self.frames[top].this = this;
     }
 
     /// WP-30 frame arena: build a frame reusing pooled backing buffers.

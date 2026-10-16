@@ -4264,12 +4264,18 @@ impl<'m> super::Vm<'m> {
                     // condizione che là rende il ramo saltato un no-op; il rilascio
                     // (take, note GC, clear, truncate, put) è quello di L-RT1 nello
                     // stesso ordine. Ogni altro frame passa dal cammino di prima.
+                    // L-MR1 (S-185, wp185-harness/s185-criterio-mc2.md): anche il
+                    // frame CON `$this` (metodo semplice, closure legata) è ammesso —
+                    // il cammino generale, con questi stessi valori, nota `$this`
+                    // dopo slots e stack (`gc_note_frame`) e lo rilascia con il
+                    // Frame (`drop(frame)` dopo gli svuotamenti): qui la nota è
+                    // `gc_note_this` (stesso braccio, stesso ordine) e il rilascio
+                    // è il `truncate`.
                     let fused = {
                         let f = &self.frames[top];
                         f.func.ret_shape == 0
                             && f.flags.bits() == 0
                             && f.ret_cell.is_none()
-                            && f.this.is_none()
                             && f.iters.is_empty()
                             && f.ext.is_none()
                             && f.dyn_vars.is_none()
@@ -4285,6 +4291,9 @@ impl<'m> super::Vm<'m> {
                         }
                         for v in &stack {
                             self.gc_note(v);
+                        }
+                        if self.frames[top].this.is_some() {
+                            self.gc_note_this(top);
                         }
                         slots.clear();
                         stack.clear();
@@ -7021,6 +7030,49 @@ impl<'m> super::Vm<'m> {
         let Some((defc, midx, cid)) = fast else { return Ok(false) };
         let callee = &self.classes[defc].methods[midx].func;
         let m = self.class_mod(defc);
+        // L-MC2 (S-185, wp185-harness/s185-criterio-mc2.md): forma di L-CR1 (a)
+        // — il frame nasce DENTRO `frames` (push dei buffer del pool), gli
+        // argomenti e il ricevitore passano per split_at_mut, nessun Frame per
+        // valore attraverso `enter_callee` (il cui ramo simple_call è solo
+        // trace + push, replicato qui al byte); `decay_arg` non esegue codice
+        // utente, quindi l'ordine pop/decay/recv non è osservabile. Un
+        // argomento `ArgPlace` resta sul cammino storico (sotto): la sua
+        // lettura può avvisare o fallire, e lo fa col SOLO chiamante in pila.
+        let has_place = {
+            let st = &self.frames[top].stack;
+            st[st.len() - n..].iter().any(|a| matches!(a, Zval::ArgPlace(_)))
+        };
+        if !has_place {
+            if log::log_enabled!(target: "phpr::call", log::Level::Trace) {
+                log::trace!(
+                    target: "phpr::call",
+                    "enter {}() (depth {})",
+                    String::from_utf8_lossy(&callee.name),
+                    self.frames.len() + 1
+                );
+            }
+            #[cfg(feature = "mem-census")]
+            php_types::memcensus::arity_note(n);
+            let (slots, stack) = self.frame_pool.take();
+            self.frames.push(super::Frame::with_buffers(callee, m, slots, stack));
+            let (caller, entered) = self.frames.split_at_mut(top + 1);
+            let cf = &mut entered[0];
+            if deref && callee.by_ref && !callee.is_generator {
+                cf.flags.set(FrameFlags::RET_DEREF, true);
+            }
+            cf.argc = n as u32;
+            for i in (0..n).rev() {
+                let a = caller[top].stack.pop().expect("MethodCall argument");
+                cf.slots[i] = decay_arg(a);
+            }
+            cf.this = Some(caller[top].stack.pop().expect("MethodCall receiver"));
+            cf.class = Some(defc);
+            cf.static_class = Some(cid); // LSB = classe del ricevitore
+            if matches!(callee.ops.first(), Some(Op::CheckArity { .. })) {
+                cf.ip = 1;
+            }
+            return Ok(true);
+        }
         let mut frame = self.pooled_frame(callee, m);
         // Copia value-context di un ritorno `&m()` (WP-53).
         if deref && callee.by_ref && !callee.is_generator {
